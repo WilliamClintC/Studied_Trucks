@@ -1,9 +1,8 @@
 import os
 import re
 import pickle
-from config import pkl_name
+from config import pkl_name, pattern,detect_encoding,clean_line
 
-pkl_name= "grouped_text.pkl"
 #clear the file
 with open(pkl_name, 'wb') as pkl_file:
     pass  # This will clear the file
@@ -13,22 +12,8 @@ def extract_file_name(file_path):
     file_name, _ = os.path.splitext(base_name)
     return file_name
 
-import chardet
 
-def detect_encoding(filepath):
-    with open(filepath, 'rb') as file:
-        raw_data = file.read()
-        result = chardet.detect(raw_data)
-        encoding = result['encoding']
-        return encoding
 
-def clean_line(line):
-    line = re.sub(r'[^\x00-\x7f]', r' ', line)
-    line = line.lower()
-    line = re.sub(r'[",!?*\[\]]', '', line)
-    line = re.sub(r';', ' ', line)
-    line = re.sub(r'\\', '', line)
-    return line
 
 import pickle
 
@@ -51,7 +36,6 @@ def add_entries_to_dataset(file_path, new_entries):
     print(f"New entries added and dataset saved to {file_path}")
 
 import re
-pattern = re.compile(r"(?i)^\d+\.\d+\.\d+|^sec\. \d+-\d+[a-z]?-\d+|^naics \d+|^section \d+|^§ \d+\.\d+|^� \d+-\d+-\d+")
 
 def text_collect(filename):
     global pattern
@@ -91,7 +75,7 @@ def process_files(directory):
     # Use glob to find all .txt files in the directory and subdirectories
     txt_files = glob.glob(os.path.join(directory, '**', '*.txt'), recursive=True)
     for file_path in txt_files:
-        print(f"Processing {file_path}")
+        #print(f"Processing {file_path}")
         text_collect(file_path)
 
 # Directory containing the text files

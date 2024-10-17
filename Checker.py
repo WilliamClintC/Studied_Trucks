@@ -1,38 +1,39 @@
 import os
 import re
+import pickle
+from config import pkl_name, pattern,detect_encoding,clean_line
 
-from config import pkl_name
+def text_collect(filename):
+    global pattern
+    sections = []
+    current_section = None
+    collected_text = []
+    pattern_found = False
+    with open(filename, 'r',encoding=detect_encoding(filename),errors='replace') as file:
+        for line in file:
+            line = clean_line(line)
+            match = pattern.match(line)
+            if match:
+                print(f"Pattern found in {filename}.")
+                pattern_found = True
+                break
+        if not pattern_found:
+            print(f"Pattern not found in {filename}.")
 
-def add_multiline_flag(pattern):
-    return re.compile(pattern.pattern, re.MULTILINE)
+    #add_entries_to_dataset(pkl_name, sections)
 
-modified_pattern = add_multiline_flag(pattern)
+import os
+import glob
 
+def process_files(directory):
+    # Use glob to find all .txt files in the directory and subdirectories
+    txt_files = glob.glob(os.path.join(directory, '**', '*.txt'), recursive=True)
+    for file_path in txt_files:
+        #print(f"Processing {file_path}")
+        text_collect(file_path)
 
-# Function to check if the pattern exists in the file
-def check_pattern_in_file(file_path):
-    global modified_pattern
-    with open(file_path, 'r',encoding=detect_encoding(file_path),errors='replace') as file:
-        contents = file.read()
-        contents= clean_line(contents)
-        #if modified_pattern.search(contents):
-            #print(f"Pattern found in {file_path}.")
-        #else:
-        if not modified_pattern.search(contents):
-            print(f"Pattern not found in {file_path}.")
+# Directory containing the text files
+directory = r'C:\Users\clint\Desktop\Studied_Trucks\Data\Raw\set0'
 
-# Function to recursively search for .txt files and check the pattern
-def check_pattern_in_directory(directory):
-    for root, _, files in os.walk(directory):
-        for file in files:
-            if file.endswith('.txt'):
-                file_path = os.path.join(root, file)
-                check_pattern_in_file(file_path)
-
-# Directory path
-directory = r'C:\Users\clint\Desktop\Studied_Trucks\Data\Raw\set1'
-
-# Check pattern in all .txt files in the directory and subdirectories
-check_pattern_in_directory(directory)
-
-#look at birmingham and chicksaw
+# Process all text files in the directory
+process_files(directory)
